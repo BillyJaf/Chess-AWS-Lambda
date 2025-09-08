@@ -54,7 +54,7 @@ Performs a basic health check on the API. Useful to confirm that the service is 
 
 ## `GET /legal_moves`
 
-Returns all legal moves from a current position (represented as a [FEN string](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation)). Useful when not playing against the bot.
+Returns all legal moves from a current position (represented as a [FEN string](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation)). Also returns whether the position is a stalemate, and if the position is a checkmate, who won.
 
 ### Request
 
@@ -89,6 +89,8 @@ Returns all legal moves from a current position (represented as a [FEN string](h
 
 ```json
 {
+  "winner":  null,
+  "stalemate":  false,
   "moves": [ "a2a3", "b2b3", "c2c3", "d2d3", "e2e3" "f2f3", "g2g3", "h2h3", "a2a4", "b2b4", "c2c4", "d2d4", "e2e4", "f2f4", "g2g4", "h2h4", "b1a3", "b1c3", "g1f3", "g1h3" ]
 }
 ```

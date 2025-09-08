@@ -1,12 +1,14 @@
 use axum::{ 
     http::StatusCode, response::{ Response, IntoResponse }, Json
  };
-use pleco::Board;
+use pleco::{Board, Player};
 use serde::Serialize;
 use crate::error::ResponseError;
 
 #[derive(Serialize)]
 struct LegalMoves {
+    winner: Option<char>,
+    stalemate: bool,
     moves: Vec<String>,
 }
 
@@ -23,7 +25,21 @@ fn generate_legal_moves(board: Board) -> LegalMoves {
     for mv in legal_moves.iter() {
         moves.push(mv.stringify());
     }
-    LegalMoves { moves: moves }
+    let stalemate = board.stalemate();
+    let mut winner = None;
+
+    if legal_moves.len() == 0 {
+        winner = match board.turn() {
+            Player::White => Some('b'),
+            Player::Black => Some('w')
+        };
+    }
+
+    LegalMoves { 
+        winner,
+        stalemate,
+        moves
+    }
 }
 
 pub async fn legal_moves(Json(fen_input): Json<String>) -> impl IntoResponse {
