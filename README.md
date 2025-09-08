@@ -83,7 +83,7 @@ Returns all legal moves from a current position (represented as a [FEN string](h
 
 | Field | Type   | Description                         |
 |-------|--------|-------------------------------------|
-| `moves` | `Vec<String>` | A list of legal [UCI](https://en.wikipedia.org/wiki/Universal_Chess_Interface) moves. |
+| `moves` | `Vec<(String, String)>` | A list of tuples containing legal [UCI](https://en.wikipedia.org/wiki/Universal_Chess_Interface) moves and their corresponding resulting [FEN string](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation). |
 
 **Example Response Body:**
 
@@ -91,7 +91,21 @@ Returns all legal moves from a current position (represented as a [FEN string](h
 {
   "winner":  null,
   "stalemate":  false,
-  "moves": [ "a2a3", "b2b3", "c2c3", "d2d3", "e2e3" "f2f3", "g2g3", "h2h3", "a2a4", "b2b4", "c2c4", "d2d4", "e2e4", "f2f4", "g2g4", "h2h4", "b1a3", "b1c3", "g1f3", "g1h3" ]
+  "moves":  [        
+              [
+                  "a2a3",
+                  "rnbqkbnr/pppppppp/8/8/8/P7/1PPPPPPP/RNBQKBNR b KQkq - 0 1"
+              ],
+              [
+                  "b2b3",
+                  "rnbqkbnr/pppppppp/8/8/8/1P6/P1PPPPPP/RNBQKBNR b KQkq - 0 1"
+              ],
+              ...
+              [
+                  "g1h3",
+                  "rnbqkbnr/pppppppp/8/8/8/7N/PPPPPPPP/RNBQKB1R b KQkq - 1 1"
+              ]
+          ]
 }
 ```
 

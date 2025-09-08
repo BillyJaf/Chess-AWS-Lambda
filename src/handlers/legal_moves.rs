@@ -5,11 +5,13 @@ use pleco::{Board, Player};
 use serde::Serialize;
 use crate::error::ResponseError;
 
+pub type MoveFenTuple = (String, String);
+
 #[derive(Serialize)]
 struct LegalMoves {
     winner: Option<char>,
     stalemate: bool,
-    moves: Vec<String>,
+    moves: Vec<MoveFenTuple>,
 }
 
 impl IntoResponse for LegalMoves {
@@ -18,12 +20,15 @@ impl IntoResponse for LegalMoves {
     }
 }
 
-fn generate_legal_moves(board: Board) -> LegalMoves {
-    let mut moves: Vec<String> = Vec::new();
+fn generate_legal_moves(mut board: Board) -> LegalMoves {
+    let mut moves: Vec<MoveFenTuple> = Vec::new();
     
     let legal_moves = board.generate_moves();
-    for mv in legal_moves.iter() {
-        moves.push(mv.stringify());
+
+    for mov in legal_moves.iter() {
+        board.apply_move(*mov);
+        moves.push((mov.stringify(), board.fen()));
+        board.undo_move();  
     }
     let stalemate = board.stalemate();
     let mut winner = None;
@@ -46,7 +51,7 @@ pub async fn legal_moves(Json(fen_input): Json<String>) -> impl IntoResponse {
     println!("Calculating Legal Moves of: {}", fen_input);
 
     match Board::from_fen(&fen_input) {
-        Ok(b) => (StatusCode::OK, generate_legal_moves(b)).into_response(),
+        Ok(board) => (StatusCode::OK, generate_legal_moves(board)).into_response(),
         Err(e) => {
             let error = ResponseError { error: format!("{:?}",e) };
             (StatusCode::BAD_REQUEST, Json(error)).into_response()
