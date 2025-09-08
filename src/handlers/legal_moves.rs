@@ -3,6 +3,7 @@ use axum::{
  };
 use pleco::Board;
 use serde::Serialize;
+use crate::error::ResponseError;
 
 #[derive(Serialize)]
 struct LegalMoves {
@@ -30,6 +31,9 @@ pub async fn legal_moves(Json(fen_input): Json<String>) -> impl IntoResponse {
 
     match Board::from_fen(&fen_input) {
         Ok(b) => (StatusCode::OK, generate_legal_moves(b)).into_response(),
-        Err(e) => (StatusCode::BAD_REQUEST, format!("{:?}",e)).into_response(),
+        Err(e) => {
+            let error = ResponseError { error: format!("{:?}",e) };
+            (StatusCode::BAD_REQUEST, Json(error)).into_response()
+        },
     }
 }

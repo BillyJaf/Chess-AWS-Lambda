@@ -99,13 +99,13 @@ Returns all legal moves from a current position (represented as a [FEN string](h
 
 | Field | Type   | Description                         |
 |-------|--------|-------------------------------------|
-| `moves` | `Vec<String>` | A list of legal [UCI](https://en.wikipedia.org/wiki/Universal_Chess_Interface) moves. |
+| `error` | `String` | Debug message of `pleco::board::FenBuildError` |
 
 **Example Response Body:**
 
 ```json
 {
-  "moves": [ "a2a3", "b2b3", "c2c3", "d2d3", "e2e3" "f2f3", "g2g3", "h2h3", "a2a4", "b2b4", "c2c4", "d2d4", "e2e4", "f2f4", "g2g4", "h2h4", "b1a3", "b1c3", "g1f3", "g1h3" ]
+  "error": "invalid turn: p, expected 'w' or 'b'\n"
 }
 ```
 
