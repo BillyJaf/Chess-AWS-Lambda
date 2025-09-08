@@ -25,3 +25,14 @@ $Params = @{
 }
 
 Invoke-RestMethod @Params | ConvertTo-Json
+
+# Send a valid FEN string that is checkmate (expect a 200 Success and legal moves bounceback):
+
+$Params = @{
+    Uri = 'http://localhost:3600/legal_moves'
+    Method = 'Post'
+    Body = 'rnbqkbnr/1pppp2p/p7/5ppQ/4P3/3P4/PPP2PPP/RNB1KBNR b KQkq - 0 1' | ConvertTo-Json
+    ContentType = 'application/json'
+}
+
+Invoke-RestMethod @Params | ConvertTo-Json
