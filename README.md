@@ -91,21 +91,24 @@ Returns all legal moves from a current position (represented as a [FEN string](h
 {
   "winner":  null,
   "stalemate":  false,
-  "moves":  [        
-              [
-                  "a2a3",
-                  "rnbqkbnr/pppppppp/8/8/8/P7/1PPPPPPP/RNBQKBNR b KQkq - 0 1"
-              ],
-              [
-                  "b2b3",
-                  "rnbqkbnr/pppppppp/8/8/8/1P6/P1PPPPPP/RNBQKBNR b KQkq - 0 1"
-              ],
-              ...
-              [
-                  "g1h3",
-                  "rnbqkbnr/pppppppp/8/8/8/7N/PPPPPPPP/RNBQKB1R b KQkq - 1 1"
-              ]
-          ]
+  "moves":  [
+                [
+                    "a2a3",
+                    "7k/8/8/8/8/P7/8/K7 b - - 0 1"
+                ],
+                [
+                    "a2a4",
+                    "7k/8/8/8/P7/8/8/K7 b - - 0 1"
+                ],
+                [
+                    "a1b1",
+                    "7k/8/8/8/8/8/P7/1K6 b - - 1 1"
+                ],
+                [
+                    "a1b2",
+                    "7k/8/8/8/8/8/PK6/8 b - - 1 1"
+                ]
+            ]
 }
 ```
 
