@@ -24,18 +24,24 @@ impl IntoResponse for BestMove {
 fn generate_best_move(mut board: Board) -> BestMove {
     
     let legal_moves = board.generate_moves();
-    let mut rng = thread_rng();
 
-    let bit_move = legal_moves.iter().choose(&mut rng).unwrap();
-    
-    let uci_move = bit_move.stringify();
+    let mut uci_move = String::from("");
 
+    let mut resulting_fen = String::from("");
 
-    board.apply_move(*bit_move);
-    
-    let resulting_fen = board.fen();
+    if legal_moves.len() > 0 {
+        let mut rng = thread_rng();
 
-    board.undo_move();
+        let bit_move = legal_moves.iter().choose(&mut rng).unwrap();
+        
+        uci_move = bit_move.stringify();
+
+        board.apply_move(*bit_move);
+        
+        resulting_fen = board.fen();
+
+        board.undo_move();
+    }
 
     let stalemate = board.stalemate();
     let mut winner = None;
