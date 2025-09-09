@@ -1,6 +1,7 @@
 mod routes;
 mod handlers;
 mod error;
+mod bot;
 
 #[tokio::main]
 async fn main() {
