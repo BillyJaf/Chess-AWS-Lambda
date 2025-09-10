@@ -23,7 +23,7 @@ pub async fn best_move(Json(fen_input): Json<String>) -> impl IntoResponse {
 
     match Board::from_fen(&fen_input) {
         Ok(board) => {
-            let best_move = generate_best_move(board, 3);
+            let best_move = generate_best_move(board, 5);
 
             let new_board = &best_move.resulting_board.unwrap();
 
