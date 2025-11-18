@@ -1,4 +1,4 @@
-use std::i32;
+use std::{i32};
 
 use pleco::{BitMove, Board, Player};
 use crate::bot::{heuristics::piece_count_heuristic, types::{ BestMove, MoveGenerationData }, utils::is_game_over};
@@ -14,7 +14,10 @@ pub fn generate_best_move(mut board: Board, search_depth: i32) -> BestMove {
 
     let bot_colour = board.turn();
 
-    let move_gen = generate_tree(&mut board, bot_colour, BitMove::null(), search_depth, search_depth, i32::MIN, i32::MAX);
+    // Note that there must be atleast one legal move, since we checked if the game ended already.
+    let legal_moves = board.generate_moves();
+
+    let move_gen = generate_tree(&mut board, bot_colour, *legal_moves.iter().next().unwrap(), search_depth, search_depth, i32::MIN, i32::MAX);
 
     board.apply_move(move_gen.bit_move);
 
