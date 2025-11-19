@@ -39,6 +39,10 @@ pub fn piece_count_heuristic(board: &Board, bot_colour: Player) -> i32 {
     evaluation
 }
 
+pub fn piece_count_heuristic_from_fen(fen: &str, bot_colour: Player) -> i32 {
+    piece_count_heuristic(&Board::from_fen(fen).unwrap(), bot_colour)
+}
+
 fn piece_value(value: i32, piece_colour: Player, bot_colour: Player) -> i32 {
     if piece_colour == bot_colour {
         value
