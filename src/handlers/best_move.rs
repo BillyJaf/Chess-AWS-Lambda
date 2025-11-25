@@ -3,7 +3,7 @@ use axum::{
  };
 use pleco::Board;
 use serde::Serialize;
-use crate::{bot::move_generation::{generate_best_move_recursive, generate_best_move_tree}, error::ResponseError};
+use crate::{bot::move_generation::{generate_best_move_recursive}, error::ResponseError};
 #[derive(Serialize)]
 struct BestMoveResponse {
     checkmate: bool,
@@ -21,7 +21,7 @@ impl IntoResponse for BestMoveResponse {
 pub async fn best_move(Json(fen_input): Json<String>) -> impl IntoResponse {
     println!("Calculating Best Move of: {}", fen_input);
 
-    match Board::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
+    match Board::from_fen(&fen_input) {
         Ok(board) => {
             // Default to just checking the current state.
             // This is used if the game is over (the player won).
@@ -32,7 +32,7 @@ pub async fn best_move(Json(fen_input): Json<String>) -> impl IntoResponse {
                 resulting_fen: board.fen(),
             };
 
-            let best_move = generate_best_move_tree(board, 4);
+            let best_move = generate_best_move_recursive(board, 4);
 
             if let Some(_) = best_move.resulting_board {
                 let new_board = &best_move.resulting_board.unwrap();
