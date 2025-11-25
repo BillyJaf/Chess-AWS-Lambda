@@ -1,8 +1,6 @@
 use pleco::{ Board, Piece, Player, SQ};
 
 pub fn piece_count_heuristic(board: &Board, bot_colour: Player) -> i32 {
-    let mut evaluation = 0;
-
     if board.checkmate() {
         if board.turn() == bot_colour {
             return i32::MIN;
@@ -12,8 +10,37 @@ pub fn piece_count_heuristic(board: &Board, bot_colour: Player) -> i32 {
     }
 
     if board.stalemate() {
-        return evaluation
+        return 0
     }
+
+    // Count the pieces on board by traditional evaluation.
+    // This is used to determine if the game is early or end (for king evaluation).
+    // We discard kings from this evaluation.
+    let mut traditional_piece_value = 0;
+
+    for i in 0..64 {
+        match board.piece_at_sq(SQ(i)) {
+            Piece::WhitePawn => traditional_piece_value += 1,
+            Piece::WhiteKnight => traditional_piece_value += 3,
+            Piece::WhiteBishop => traditional_piece_value += 3,
+            Piece::WhiteRook => traditional_piece_value += 5,
+            Piece::WhiteQueen => traditional_piece_value += 9,
+
+            Piece::BlackPawn => traditional_piece_value += 1,
+            Piece::BlackKnight => traditional_piece_value += 3,
+            Piece::BlackBishop => traditional_piece_value += 3,
+            Piece::BlackRook => traditional_piece_value += 5,
+            Piece::BlackQueen => traditional_piece_value += 9,
+
+            _ => continue
+        }
+    }
+
+    // Threshold for the game to be considered endgame.
+    // This is subject to scrutiny / changing.
+    let is_endgame = traditional_piece_value <= 30;
+
+    let mut evaluation = 0;
 
     for i in 0..64 {
         match board.piece_at_sq(SQ(i)) {
@@ -22,14 +49,26 @@ pub fn piece_count_heuristic(board: &Board, bot_colour: Player) -> i32 {
             Piece::WhiteBishop => evaluation += bishop_value(Player::White, bot_colour, i),
             Piece::WhiteRook => evaluation += rook_value(Player::White, bot_colour, i),
             Piece::WhiteQueen => evaluation += queen_value(Player::White, bot_colour, i),
-            Piece::WhiteKing => evaluation += king_value(Player::White, bot_colour, i),
+            Piece::WhiteKing => {
+                if is_endgame {
+                    evaluation += king_end_value(Player::White, bot_colour, i)
+                } else {
+                    evaluation += king_early_value(Player::White, bot_colour, i)
+                }
+            },
 
             Piece::BlackPawn => evaluation += pawn_value(Player::Black, bot_colour, i),
             Piece::BlackKnight => evaluation += knight_value(Player::Black, bot_colour, i),
             Piece::BlackBishop => evaluation += bishop_value(Player::Black, bot_colour, i),
             Piece::BlackRook => evaluation += rook_value(Player::Black, bot_colour, i),
             Piece::BlackQueen => evaluation += queen_value(Player::Black, bot_colour, i),
-            Piece::BlackKing => evaluation += king_value(Player::Black, bot_colour, i),
+            Piece::BlackKing => {
+                if is_endgame {
+                    evaluation += king_end_value(Player::Black, bot_colour, i)
+                } else {
+                    evaluation += king_early_value(Player::Black, bot_colour, i)
+                }
+            },
 
             _ => continue
         }
@@ -45,7 +84,7 @@ fn pawn_value(piece_colour: Player, bot_colour: Player, square_index: u8) -> i32
     if bot_colour == Player::Black {
         pawn_square_evaluation = BLACK_PAWN_EVALUATION[square_index as usize] as i32
     } else {
-        pawn_square_evaluation =WHITE_PAWN_EVALUATION[square_index as usize] as i32
+        pawn_square_evaluation = WHITE_PAWN_EVALUATION[square_index as usize] as i32
     }
 
     if piece_colour == bot_colour {
@@ -61,9 +100,9 @@ fn knight_value(piece_colour: Player, bot_colour: Player, square_index: u8) -> i
     let knight_square_evaluation: i32;
 
     if bot_colour == Player::Black {
-        knight_square_evaluation = BLACK_PAWN_EVALUATION[square_index as usize] as i32
+        knight_square_evaluation = BLACK_KNIGHT_EVALUATION[square_index as usize] as i32
     } else {
-        knight_square_evaluation =WHITE_PAWN_EVALUATION[square_index as usize] as i32
+        knight_square_evaluation = WHITE_KNIGHT_EVALUATION[square_index as usize] as i32
     }
 
     if piece_colour == bot_colour {
@@ -79,9 +118,9 @@ fn bishop_value(piece_colour: Player, bot_colour: Player, square_index: u8) -> i
     let bishop_square_evaluation: i32;
 
     if bot_colour == Player::Black {
-        bishop_square_evaluation = BLACK_PAWN_EVALUATION[square_index as usize] as i32
+        bishop_square_evaluation = BLACK_BISHOP_EVALUATION[square_index as usize] as i32
     } else {
-        bishop_square_evaluation =WHITE_PAWN_EVALUATION[square_index as usize] as i32
+        bishop_square_evaluation = WHITE_BISHOP_EVALUATION[square_index as usize] as i32
     }
 
     if piece_colour == bot_colour {
@@ -97,9 +136,9 @@ fn rook_value(piece_colour: Player, bot_colour: Player, square_index: u8) -> i32
     let rook_square_evaluation: i32;
 
     if bot_colour == Player::Black {
-        rook_square_evaluation = BLACK_PAWN_EVALUATION[square_index as usize] as i32
+        rook_square_evaluation = BLACK_ROOK_EVALUATION[square_index as usize] as i32
     } else {
-        rook_square_evaluation =WHITE_PAWN_EVALUATION[square_index as usize] as i32
+        rook_square_evaluation = WHITE_ROOK_EVALUATION[square_index as usize] as i32
     }
 
     if piece_colour == bot_colour {
@@ -115,9 +154,9 @@ fn queen_value(piece_colour: Player, bot_colour: Player, square_index: u8) -> i3
     let queen_square_evaluation: i32;
 
     if bot_colour == Player::Black {
-        queen_square_evaluation = BLACK_PAWN_EVALUATION[square_index as usize] as i32
+        queen_square_evaluation = BLACK_QUEEN_EVALUATION[square_index as usize] as i32
     } else {
-        queen_square_evaluation =WHITE_PAWN_EVALUATION[square_index as usize] as i32
+        queen_square_evaluation = WHITE_QUEEN_EVALUATION[square_index as usize] as i32
     }
 
     if piece_colour == bot_colour {
@@ -127,15 +166,15 @@ fn queen_value(piece_colour: Player, bot_colour: Player, square_index: u8) -> i3
     }
 }
 
-fn king_value(piece_colour: Player, bot_colour: Player, square_index: u8) -> i32 {
+fn king_early_value(piece_colour: Player, bot_colour: Player, square_index: u8) -> i32 {
 
     let king_value = 20000;
     let king_square_evaluation: i32;
 
     if bot_colour == Player::Black {
-        king_square_evaluation = BLACK_PAWN_EVALUATION[square_index as usize] as i32
+        king_square_evaluation = BLACK_KING_EARLY_EVALUATION[square_index as usize] as i32
     } else {
-        king_square_evaluation =WHITE_PAWN_EVALUATION[square_index as usize] as i32
+        king_square_evaluation = WHITE_KING_EARLY_EVALUATION[square_index as usize] as i32
     }
 
     if piece_colour == bot_colour {
@@ -145,12 +184,27 @@ fn king_value(piece_colour: Player, bot_colour: Player, square_index: u8) -> i32
     }
 }
 
-pub fn piece_count_heuristic_from_fen(fen: &str, bot_colour: Player) -> i32 {
-    piece_count_heuristic(&Board::from_fen(fen).unwrap(), bot_colour)
+fn king_end_value(piece_colour: Player, bot_colour: Player, square_index: u8) -> i32 {
+
+    let king_value = 20000;
+    let king_square_evaluation: i32;
+
+    if bot_colour == Player::Black {
+        king_square_evaluation = BLACK_KING_END_EVALUATION[square_index as usize] as i32
+    } else {
+        king_square_evaluation = WHITE_KING_END_EVALUATION[square_index as usize] as i32
+    }
+
+    if piece_colour == bot_colour {
+        king_value + king_square_evaluation
+    } else {
+        -(king_value + king_square_evaluation)
+    }
 }
 
-// Note, the evaluation function is setup from the perspective of the white player.
-// Despite this, the board is setup with the rows in reverse order, but not the columns.
+// The following value arrays are from: https://www.chessprogramming.org/Simplified_Evaluation_Function
+// Note, the rows in the board are setup in reverse order, but not the columns.
+// i.e. the first eight entries in the array are the last eight from the website (the columsn remain unchanged).
 //
 // The setup of the board is:           A1,  B1,  C1,  D1,  E1,  F1,  G1,  H1, 
 //                                      A2,  B2,  C2,  D2,  E2,  F2,  G2,  H2,
