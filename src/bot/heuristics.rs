@@ -1,6 +1,6 @@
 use pleco::{ Board, Piece, Player, SQ};
 
-pub fn piece_count_heuristic(board: &Board, bot_colour: Player) -> i32 {
+pub fn heuristic(board: &Board, bot_colour: Player) -> i32 {
     if board.checkmate() {
         if board.turn() == bot_colour {
             return i32::MIN;

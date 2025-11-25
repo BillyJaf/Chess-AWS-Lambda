@@ -1,6 +1,6 @@
 use std::{i32};
 use pleco::{BitMove, Board, Player};
-use crate::bot::{heuristics::piece_count_heuristic, types::{ BestMove, MoveGenerationData }, utils::is_game_over};
+use crate::bot::{heuristics::heuristic, types::{ BestMove, MoveGenerationData }, utils::{is_game_over, order_moves_max, order_moves_min}};
 
 pub fn generate_best_move_recursive(mut board: Board, search_depth: i32) -> BestMove {
 
@@ -14,7 +14,10 @@ pub fn generate_best_move_recursive(mut board: Board, search_depth: i32) -> Best
     let bot_colour = board.turn();
 
     // Note that there must be atleast one legal move, since we checked if the game ended already.
-    let legal_moves = board.generate_moves();
+    let mut legal_moves = board.generate_moves();
+
+    // Check the best move first:
+    order_moves_max(&mut board, &mut legal_moves, bot_colour);
 
     let move_gen = recursive_generation(&mut board, bot_colour, *legal_moves.iter().next().unwrap(), search_depth, search_depth, i32::MIN, i32::MAX);
 
@@ -29,16 +32,16 @@ pub fn generate_best_move_recursive(mut board: Board, search_depth: i32) -> Best
 fn recursive_generation(board: &mut Board, bot_colour: Player, move_made: BitMove, current_height: i32, max_height: i32, mut alpha: i32, mut beta: i32) -> MoveGenerationData {
     if current_height == 0 {
         MoveGenerationData {
-            evaluation: piece_count_heuristic(&board, bot_colour),
+            evaluation: heuristic(&board, bot_colour),
             height: 0,
             bit_move: move_made,
         }
     } else {
-        let legal_moves = board.generate_moves();
+        let mut legal_moves = board.generate_moves();
 
         if legal_moves.len() == 0 {
             return MoveGenerationData {
-                evaluation: piece_count_heuristic(&board, bot_colour),
+                evaluation: heuristic(&board, bot_colour),
                 height: current_height,
                 bit_move: move_made,
             }
@@ -51,6 +54,9 @@ fn recursive_generation(board: &mut Board, bot_colour: Player, move_made: BitMov
                 height: max_height,
                 bit_move: move_made,
             };
+
+            // Check the best move first:
+            order_moves_max(board, &mut legal_moves, bot_colour);
 
             for mv in legal_moves.iter() {
                 board.apply_move(*mv);
@@ -86,6 +92,9 @@ fn recursive_generation(board: &mut Board, bot_colour: Player, move_made: BitMov
                 height: 0,
                 bit_move: move_made,
             };
+
+            // Check the worst move first:
+            order_moves_min(board, &mut legal_moves, bot_colour);
 
             for mv in legal_moves.iter() {
                 board.apply_move(*mv);
