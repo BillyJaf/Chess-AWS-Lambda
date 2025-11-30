@@ -1,6 +1,6 @@
 # Perform a health check:
 $Params = @{
-    Uri = 'http://localhost:3600/health'
+    Uri = 'http://localhost:3600/health_check'
     Method = 'Get'
 }
 

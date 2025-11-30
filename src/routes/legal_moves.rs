@@ -1,6 +1,5 @@
 use axum::{
-    routing::post,
-    Router,
+    Router, http::{Method, header::CONTENT_TYPE}, routing::post
 };
 use tower_http::cors::{Any, CorsLayer};
 
@@ -10,8 +9,10 @@ pub fn routes() -> Router {
     // THIS ALLOWS ALL CONNECTIONS, ONLY USE THIS FOR DEV
     let cors = CorsLayer::new()
         .allow_origin(Any)
-        .allow_methods(Any)
-        .allow_headers(Any);
+        .allow_methods([Method::POST])
+        .allow_headers([CONTENT_TYPE]);
 
-    Router::new().route("/", post(legal_moves::legal_moves)).layer(cors) 
+    Router::new()
+        .route("/", post(legal_moves::legal_moves))
+        .layer(cors) 
 }

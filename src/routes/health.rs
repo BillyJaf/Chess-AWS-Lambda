@@ -1,17 +1,17 @@
 use axum::{
-    routing::get, 
-    Router,
+    Router, http::{Method, header::CONTENT_TYPE}, routing::get
 };
 use tower_http::cors::{Any, CorsLayer};
 
-use crate::handlers::health;
+use crate::handlers::health_check;
 
 pub fn routes() -> Router {
-    // THIS ALLOWS ALL CONNECTIONS, ONLY USE THIS FOR DEV
     let cors = CorsLayer::new()
         .allow_origin(Any)
-        .allow_methods(Any)
-        .allow_headers(Any);
+        .allow_methods([Method::GET])
+        .allow_headers([CONTENT_TYPE]);
 
-    Router::new().route("/", get(health::health_check)).layer(cors)
+    Router::new()
+        .route("/", get(health_check::health_check))
+        .layer(cors)
 }
