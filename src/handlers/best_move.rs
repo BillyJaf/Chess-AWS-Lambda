@@ -32,7 +32,7 @@ pub async fn best_move(Json(fen_input): Json<String>) -> impl IntoResponse {
                 resulting_fen: board.fen(),
             };
 
-            let best_move = generate_best_move_recursive(board, 5);
+            let best_move = generate_best_move_recursive(board, 4);
 
             if let Some(_) = best_move.resulting_board {
                 let new_board = &best_move.resulting_board.unwrap();
