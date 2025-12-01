@@ -1,11 +1,15 @@
 use pleco::{ Board, Piece, Player, SQ};
 
+pub fn is_game_over(board: &Board) -> bool {
+    board.checkmate() || board.stalemate()
+}
+
 pub fn heuristic(board: &Board, bot_colour: Player) -> i32 {
     if board.checkmate() {
         if board.turn() == bot_colour {
-            return i32::MIN;
+            return i32::MIN + 1;
         } else {
-            return i32::MAX;
+            return i32::MAX - 1;
         }
     }
 

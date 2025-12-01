@@ -1,15 +1,14 @@
-use axum::{ 
-    http::StatusCode, response::{ Response, IntoResponse }, Json
- };
+use axum::{ http::StatusCode, response::{ Response, IntoResponse }, Json };
 use pleco::Board;
 use serde::Serialize;
-use crate::{bot::move_generation::{generate_best_move_recursive}, error::ResponseError};
+use crate::{bot::engine::Engine, error::ResponseError, handlers::{types::{GameOver, ResultingGameState}, utils::{game_over, get_resulting_game_states}}};
+
 #[derive(Serialize)]
 struct BestMoveResponse {
-    checkmate: bool,
-    stalemate: bool,
+    game_over: Option<GameOver>,
     uci_move: String,
     resulting_fen: String,
+    resulting_legal_moves: Vec<ResultingGameState>
 }
 
 impl IntoResponse for BestMoveResponse {
@@ -19,38 +18,33 @@ impl IntoResponse for BestMoveResponse {
 }
 
 pub async fn best_move(Json(fen_input): Json<String>) -> impl IntoResponse {
-    println!("Calculating Best Move of: {}", fen_input);
 
-    match Board::from_fen(&fen_input) {
-        Ok(board) => {
-            // Default to just checking the current state.
-            // This is used if the game is over (the player won).
-            let default_response = BestMoveResponse {
-                checkmate: board.checkmate(),
-                stalemate: board.stalemate(),
-                uci_move: "".to_string(),
-                resulting_fen: board.fen(),
-            };
-
-            let best_move = generate_best_move_recursive(board, 4);
-
-            if let Some(_) = best_move.resulting_board {
-                let new_board = &best_move.resulting_board.unwrap();
-
-                let best_move_response = BestMoveResponse {
-                    checkmate: new_board.checkmate(),
-                    stalemate: new_board.stalemate(),
-                    uci_move: best_move.uci_move.unwrap(),
-                    resulting_fen: new_board.fen(),
-                };
-                (StatusCode::OK, best_move_response).into_response()
-            } else {
-                (StatusCode::OK, default_response).into_response()
-            }
-        },
+    let mut engine = match Board::from_fen(&fen_input) {
+        Ok(board) => Engine::new(board),
         Err(e) => {
             let error = ResponseError { error: format!("{:?}",e) };
-            (StatusCode::BAD_REQUEST, Json(error)).into_response()
+            return (StatusCode::BAD_REQUEST, Json(error)).into_response()
         },
-    }
+    };
+
+    let best_move_response = match engine.best_move() {
+        None => {
+            let error = ResponseError { error: String::from("No Legal Moves.") };
+            return (StatusCode::BAD_REQUEST, Json(error)).into_response()
+        }
+
+        Some(best_move) => { 
+            let mut new_board = best_move.resulting_board;
+            let resulting_legal_moves = get_resulting_game_states(&mut new_board);
+
+            BestMoveResponse {
+                game_over: game_over(&new_board),
+                uci_move: best_move.uci_move,
+                resulting_fen: new_board.fen(),
+                resulting_legal_moves,
+            }
+        }
+    };
+
+    (StatusCode::OK, best_move_response).into_response()
 }

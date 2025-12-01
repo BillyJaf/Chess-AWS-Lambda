@@ -1,49 +1,35 @@
-use std::{cmp::Ordering, collections::HashMap};
+use std::{cmp::Ordering, u8};
 use pleco::{BitMove, Board};
-use xxhash_rust::xxh3::xxh3_64;
+// use xxhash_rust::xxh3::xxh3_64;
 
-pub struct Engine {
-    board: Board,
-    transposition_table: TranspositionTable,
-}
+// struct TranspositionTable {
+//     size: usize,
+//     map: HashMap<u64, TTE>,
+// }
 
-struct TranspositionTable {
-    size: usize,
-    map: HashMap<u64, TTE>,
-}
+// struct TTE {
+//     pub height: u8,
+//     pub evaluation: i32,
+// }
 
-struct TTE {
-    pub height: u8,
-    pub evaluation: i32,
-}
+// impl TranspositionTable {
+//     pub fn new(size: usize) -> Self {
+//         Self {
+//             size,
+//             map: HashMap::with_capacity(size),
+//         }
+//     }
 
-impl TranspositionTable {
-    pub fn new(size: usize) -> Self {
-        Self {
-            size,
-            map: HashMap::with_capacity(size),
-        }
-    }
-
-    pub fn insert(&mut self, board: &Board, height: u8, evaluation: i32) {
-        if self.map.len() >= self.size {
-            return // FIX THIS SO THAT IT EVICTS AND THEN ADDS
-        }
-        self.map.insert(xxh3_64(board.fen().as_bytes()), TTE {
-            height,
-            evaluation,
-        });
-    }
-}
-
-impl Engine {
-    pub fn new(board: Board) -> Self {
-        Self {
-            board,
-            transposition_table: TranspositionTable::new(200_000),
-        }
-    }
-}
+//     pub fn insert(&mut self, board: &Board, height: u8, evaluation: i32) {
+//         if self.map.len() >= self.size {
+//             return // FIX THIS SO THAT IT EVICTS AND THEN ADDS
+//         }
+//         self.map.insert(xxh3_64(board.fen().as_bytes()), TTE {
+//             height,
+//             evaluation,
+//         });
+//     }
+// }
 
 /// Represents an evaluation score along with its height in the game tree.
 /// Height refers to the number of levels a node is from the deepest leaf.
@@ -54,8 +40,26 @@ impl Engine {
 #[derive(Debug, Eq, Clone, Copy, PartialEq)]
 pub struct MoveGenerationData {
     pub evaluation: i32,
-    pub height: i32,
+    pub height: u8,
     pub bit_move: BitMove
+}
+
+impl MoveGenerationData {
+    pub fn worst_evaluation() -> Self {
+        Self {
+            evaluation: i32::MIN,
+            height: u8::MAX,
+            bit_move: BitMove::null(),
+        }
+    }
+
+    pub fn best_evaluation() -> Self {
+        Self {
+            evaluation: i32::MAX,
+            height: 0,
+            bit_move: BitMove::null(),
+        }
+    }
 }
 
 /// Order first by the evaluation.
@@ -76,6 +80,6 @@ impl PartialOrd for MoveGenerationData {
 }
 
 pub struct BestMove {
-    pub uci_move: Option<String>,
-    pub resulting_board: Option<Board>,
+    pub uci_move: String,
+    pub resulting_board: Board,
 }

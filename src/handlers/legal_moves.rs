@@ -1,17 +1,12 @@
-use axum::{ 
-    http::StatusCode, response::{ Response, IntoResponse }, Json
- };
-use pleco::{Board, Player};
+use axum::{ http::StatusCode, response::{ Response, IntoResponse }, Json };
+use pleco::Board;
 use serde::Serialize;
-use crate::error::ResponseError;
-
-pub type MoveFenTuple = (String, String);
+use crate::{error::ResponseError, handlers::{types::{GameOver, ResultingGameState}, utils::{game_over, get_resulting_game_states}}};
 
 #[derive(Serialize)]
 struct LegalMoves {
-    winner: Option<char>,
-    stalemate: bool,
-    moves: Vec<MoveFenTuple>,
+    game_over: Option<GameOver>,
+    legal_moves: Vec<ResultingGameState>,
 }
 
 impl IntoResponse for LegalMoves {
@@ -21,35 +16,15 @@ impl IntoResponse for LegalMoves {
 }
 
 fn generate_legal_moves(mut board: Board) -> LegalMoves {
-    let mut moves: Vec<MoveFenTuple> = Vec::new();
-    
-    let legal_moves = board.generate_moves();
-
-    for mov in legal_moves.iter() {
-        board.apply_move(*mov);
-        moves.push((mov.stringify(), board.fen()));
-        board.undo_move();  
-    }
-    let stalemate = board.stalemate();
-    let mut winner = None;
-
-    if legal_moves.len() == 0 {
-        winner = match board.turn() {
-            Player::White => Some('b'),
-            Player::Black => Some('w')
-        };
-    }
+    let legal_moves= get_resulting_game_states(&mut board);
 
     LegalMoves { 
-        winner,
-        stalemate,
-        moves
+        game_over: game_over(&board),
+        legal_moves
     }
 }
 
 pub async fn legal_moves(Json(fen_input): Json<String>) -> impl IntoResponse {
-    println!("Calculating Legal Moves of: {}", fen_input);
-
     match Board::from_fen(&fen_input) {
         Ok(board) => (StatusCode::OK, generate_legal_moves(board)).into_response(),
         Err(e) => {

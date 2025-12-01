@@ -7,11 +7,10 @@ use serde::Serialize;
 
 #[derive(Serialize)]
 struct HealthResponse {
-    status: &'static str,
+    status: String,
 }
 
 pub async fn health_check() -> impl IntoResponse {
-    println!("Received a Health Check!");
-    let body = HealthResponse { status: "ok" };
+    let body = HealthResponse { status: String::from("ok") };
     (StatusCode::OK, Json(body))
 }
