@@ -1,10 +1,10 @@
-# Project Title: [Rust Chess Bot Backend]
+# Rust Chess Bot Backend
 
 ## Authors
 - Billy Jaffray
 
 ## Overview
-A REST API that takes a FEN string and returns the best move.
+A REST API for a chess client-server application.
 
 ## Background and Motivation
 I enjoy both playing chess and programming - creating a chess bot is a natural extension.
@@ -13,7 +13,7 @@ I also intend to increase my confidence with RESTful APIs and general algorithms
 
 ## Goals and Non-Goals
 ### Goals
-- Create a chess bot that outputs reasonable 'moves' with a performance of >1800 elo.
+- Create a chess bot that outputs reasonable moves with a performance of >1800 elo.
 - Become confident with Rust and low-level memory management.
 - Learn backend design fundamentals / industry standards.
 
@@ -21,24 +21,16 @@ I also intend to increase my confidence with RESTful APIs and general algorithms
 - Frontend UI design (this will be a separate project).
 - Programming move generation (a high-level understanding is sufficient).
 
-## Detailed Design
+## Endpoints
 
-### System Architecture
-
-### Components
-
-### Data Models
-
-## APIs
-
-## `GET /status`
+## `GET /health_check`
 
 Performs a basic health check on the API. Useful to confirm that the service is running.
 
 ### Request
 
 **Method:** `GET`  
-**URL:** `/status`  
+**URL:** `/health_check`  
 **Headers:** _None required_  
 
 ### Response
@@ -54,7 +46,7 @@ Performs a basic health check on the API. Useful to confirm that the service is 
 
 ## `GET /legal_moves`
 
-Returns all legal moves from a current position (represented as a [FEN string](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation)). Also returns whether the position is a stalemate, and if the position is a checkmate, who won.
+Returns all legal moves from a current position (represented as a [FEN string](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation)) along with a field to indicate if the current game has ended (checkmate, stalemate or neither). Each element in the list of legal moves contains the move (represented as a [UCI move](https://en.wikipedia.org/wiki/Universal_Chess_Interface)), the resulting FEN string if the move is applied, and if the resulting game has ended.
 
 ### Request
 
@@ -65,7 +57,7 @@ Returns all legal moves from a current position (represented as a [FEN string](h
 
 | Field | Type   | Required | Description                         |
 |-------|--------|----------|-------------------------------------|
-| `fen` | `String` | Yes      | A valid FEN string |
+| `fen` | `String` | Yes | A valid FEN string |
 
 **Example Request Body:**
 ```json
@@ -81,34 +73,33 @@ Returns all legal moves from a current position (represented as a [FEN string](h
 **Headers:** `{ "Content-Type": "application/json" }`  
 **Body Parameters:**
 
+Top-Level Fields:
 | Field | Type   | Description                         |
 |-------|--------|-------------------------------------|
-| `moves` | `Vec<(String, String)>` | A list of tuples containing legal [UCI](https://en.wikipedia.org/wiki/Universal_Chess_Interface) moves and their corresponding resulting [FEN string](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation). |
+| game_over | `Option<GameOver>` | `null` if the game is not over, otherwise the outcome of the game |
+| legal_moves | `Vec<ResultingGameState>` | List of possible gamestates from the current gamestate |
+
+`GameOver` enum:
+| Variant       | Meaning           |
+| ------------- | ----------------- |
+| `"White"`     | White checkmates  |
+| `"Black"`     | Black checkmates  |
+| `"Stalemate"` | Stalemate reached |
+
+`ResultingGameState` struct:
+| Field  | Type     | Description                      |
+| ------ | -------- | -------------------------------- |
+| `uci_move` | `String` | legal UCI move string from current position |
+| `resulting_fen` | `String` | resulting FEN string of gamestate if the move is applied |
+| `game_over` | `Option<GameOver>` | `null` if the resulting game is not over, otherwise the outcome of the resulting game |
+
+
 
 **Example Response Body:**
 
 ```json
 {
-  "winner":  null,
-  "stalemate":  false,
-  "moves":  [
-                [
-                    "a2a3",
-                    "7k/8/8/8/8/P7/8/K7 b - - 0 1"
-                ],
-                [
-                    "a2a4",
-                    "7k/8/8/8/P7/8/8/K7 b - - 0 1"
-                ],
-                [
-                    "a1b1",
-                    "7k/8/8/8/8/8/P7/1K6 b - - 1 1"
-                ],
-                [
-                    "a1b2",
-                    "7k/8/8/8/8/8/PK6/8 b - - 1 1"
-                ]
-            ]
+
 }
 ```
 
@@ -127,12 +118,6 @@ Returns all legal moves from a current position (represented as a [FEN string](h
   "error": "invalid turn: p, expected 'w' or 'b'\n"
 }
 ```
-
-## Implementation Strategy
-
-## Risks and Mitigations
-
-## Testing Strategy
 
 ## Dependencies
 - axum
