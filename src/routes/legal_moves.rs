@@ -6,7 +6,6 @@ use tower_http::cors::{AllowOrigin, CorsLayer};
 use crate::handlers::legal_moves;
 
 pub fn routes() -> Router {
-    // THIS ALLOWS ALL CONNECTIONS, ONLY USE THIS FOR DEV
     let cors = CorsLayer::new()
         .allow_origin(AllowOrigin::exact("https://frontend-chess-bot.netlify.app".parse().unwrap()))
         .allow_methods([Method::POST])
