@@ -9,7 +9,7 @@ pub fn routes() -> Router {
     let cors = CorsLayer::new()
         .allow_origin(AllowOrigin::list([
             HeaderValue::from_static("https://frontend-chess-bot.netlify.app"), // prod
-            HeaderValue::from_static("http://localhost:5173/"), // dev
+            HeaderValue::from_static("http://localhost:5173"), // dev
         ]))
         .allow_methods([Method::POST])
         .allow_headers([CONTENT_TYPE]);

@@ -8,8 +8,8 @@ pub fn game_over(board: &Board) -> Option<GameOver> {
     }
     if board.checkmate() {
         return match board.turn() {
-            Player::White => Some(GameOver::White),
-            Player::Black => Some(GameOver::Black)
+            Player::White => Some(GameOver::Black),
+            Player::Black => Some(GameOver::White)
         }
     }
     None
