@@ -1,5 +1,6 @@
 use std::{cmp::Ordering, u8};
 use pleco::{BitMove, Board};
+use serde::Serialize;
 // use xxhash_rust::xxh3::xxh3_64;
 
 // struct TranspositionTable {
@@ -81,5 +82,21 @@ impl PartialOrd for MoveGenerationData {
 
 pub struct BestMove {
     pub uci_move: String,
+    pub san_move: String,
     pub resulting_board: Board,
+}
+
+#[derive(Serialize)]
+pub enum GameOver {
+    White,
+    Black,
+    Stalemate,
+}
+
+#[derive(Serialize)]
+pub struct ResultingGameState {
+    pub uci_move: String,
+    pub san_move: String,
+    pub resulting_fen: String,
+    pub game_over: Option<GameOver>,
 }

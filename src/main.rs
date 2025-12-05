@@ -2,6 +2,8 @@ mod routes;
 mod handlers;
 mod error;
 mod bot;
+mod utils;
+mod types;
 
 #[tokio::main]
 async fn main() {

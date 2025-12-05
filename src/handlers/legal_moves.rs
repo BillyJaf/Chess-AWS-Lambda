@@ -1,7 +1,7 @@
 use axum::{ http::StatusCode, response::{ Response, IntoResponse }, Json };
 use pleco::Board;
 use serde::Serialize;
-use crate::{error::ResponseError, handlers::{types::{GameOver, ResultingGameState}, utils::{game_over, get_resulting_game_states}}};
+use crate::{error::ResponseError, types::{GameOver, ResultingGameState}, utils::{game_over, get_resulting_game_states}};
 
 #[derive(Serialize)]
 struct LegalMoves {

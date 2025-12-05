@@ -3,4 +3,3 @@ pub mod health_check;
 pub mod legal_moves;
 
 mod types;
-mod utils;

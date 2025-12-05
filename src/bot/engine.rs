@@ -1,6 +1,6 @@
 use std::{i32};
 use pleco::{BitMove, Board, Player};
-use crate::bot::{heuristics::{heuristic, is_game_over}, types::{ BestMove, MoveGenerationData }};
+use crate::{bot::heuristics::{heuristic, is_game_over}, types::{BestMove, MoveGenerationData}, utils::uci_to_san};
 
 pub struct Engine {
     board: Board,
@@ -29,10 +29,14 @@ impl Engine {
 
         let move_gen = self.search(&mut current_board, bot_colour, BitMove::null(), node_height, root_height, alpha, beta);
 
+        let uci_move: String = move_gen.bit_move.stringify();
+        let san_move: String = uci_to_san(&current_board.fen(), &uci_move);
+
         current_board.apply_move(move_gen.bit_move);
 
         Some(BestMove { 
-            uci_move: move_gen.bit_move.stringify(),
+            uci_move,
+            san_move,
             resulting_board: current_board,
         })
     }
@@ -104,5 +108,11 @@ impl Engine {
                 return value
             }
         }
+    }
+
+    fn apply_heuristic(&self, bit_move: BitMove, bot_colour: Player) -> i32 {
+        let mut cloned_board = self.board.clone();
+        cloned_board.apply_move(bit_move);
+        heuristic(&cloned_board, bot_colour)
     }
 }
