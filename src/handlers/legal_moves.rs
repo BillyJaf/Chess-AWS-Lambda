@@ -1,19 +1,6 @@
-use axum::{ http::StatusCode, response::{ Response, IntoResponse }, Json };
+use lambda_http::Body;
 use pleco::Board;
-use serde::Serialize;
-use crate::{error::ResponseError, types::{GameOver, ResultingGameState}, utils::{game_over, get_resulting_game_states}};
-
-#[derive(Serialize)]
-struct LegalMoves {
-    game_over: Option<GameOver>,
-    legal_moves: Vec<ResultingGameState>,
-}
-
-impl IntoResponse for LegalMoves {
-    fn into_response(self) -> Response {
-        Json(self).into_response()
-    }
-}
+use crate::{error::ResponseError, types::{LegalMoves}, utils::{game_over, get_resulting_game_states}};
 
 fn generate_legal_moves(mut board: Board) -> LegalMoves {
     let legal_moves= get_resulting_game_states(&mut board);
@@ -24,12 +11,18 @@ fn generate_legal_moves(mut board: Board) -> LegalMoves {
     }
 }
 
-pub async fn legal_moves(Json(fen_input): Json<String>) -> impl IntoResponse {
-    match Board::from_fen(&fen_input) {
-        Ok(board) => (StatusCode::OK, generate_legal_moves(board)).into_response(),
-        Err(e) => {
-            let error = ResponseError { error: format!("{:?}",e) };
-            (StatusCode::BAD_REQUEST, Json(error)).into_response()
-        },
-    }
+pub async fn legal_moves(body: Body) -> Result<LegalMoves, ResponseError> {
+    let body_bytes = match body {
+        Body::Text(s) => s.into_bytes(),
+        Body::Binary(b) => b,
+        Body::Empty => return Err(ResponseError { error: String::from("Empty body") })
+    };
+
+    let fen_input: String = serde_json::from_slice(&body_bytes)
+        .map_err(|e| ResponseError { error: format!("Invalid JSON: {}", e)})?;
+
+    let board = Board::from_fen(&fen_input)
+        .map_err(|e| ResponseError { error: format!("Invalid FEN: {:?}", e)})?;
+
+    Ok(generate_legal_moves(board))
 }

@@ -1,23 +1,23 @@
-use axum::{ 
-    http::StatusCode, 
-    response::IntoResponse, 
-    Json 
-};
+use lambda_http::Body;
 use pleco::Board;
-use serde::Serialize;
 
-#[derive(Serialize)]
-struct ValidateFenResponse {
-    valid: bool,
-    error: Option<String>,
-}
+use crate::{error::ResponseError, types::ValidateFenResponse};
 
-pub async fn validate_fen(Json(fen_input): Json<String>) -> impl IntoResponse {
+pub async fn validate_fen(body: Body) -> Result<ValidateFenResponse, ResponseError> {
+    let body_bytes = match body {
+        Body::Text(s) => s.into_bytes(),
+        Body::Binary(b) => b,
+        Body::Empty => return Err(ResponseError { error: String::from("Empty body") })
+    };
+
+    let fen_input: String = serde_json::from_slice(&body_bytes)
+        .map_err(|e| ResponseError { error: format!("Invalid JSON: {}", e)})?;
+
     match Board::from_fen(&fen_input) {
-        Ok(_) => (StatusCode::OK, Json(ValidateFenResponse {valid: true, error: None})).into_response(),
+        Ok(_) => Ok(ValidateFenResponse {valid: true, error: None}),
         Err(e) => {
             let error = format!("{:?}",e);
-            (StatusCode::OK, Json(ValidateFenResponse {valid: false, error: Some(error)})).into_response()
-        },
+            Ok(ValidateFenResponse {valid: false, error: Some(error)})
+        }
     }
 }

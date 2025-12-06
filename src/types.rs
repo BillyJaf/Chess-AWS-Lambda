@@ -100,3 +100,29 @@ pub struct ResultingGameState {
     pub resulting_fen: String,
     pub game_over: Option<GameOver>,
 }
+
+#[derive(Serialize)]
+pub struct BestMoveResponse {
+    pub game_over: Option<GameOver>,
+    pub uci_move: String,
+    pub san_move: String,
+    pub resulting_fen: String,
+    pub resulting_legal_moves: Vec<ResultingGameState>
+}
+
+#[derive(Serialize)]
+pub struct HealthResponse {
+    pub status: String,
+}
+
+#[derive(Serialize)]
+pub struct LegalMoves {
+    pub game_over: Option<GameOver>,
+    pub legal_moves: Vec<ResultingGameState>,
+}
+
+#[derive(Serialize)]
+pub struct ValidateFenResponse {
+    pub valid: bool,
+    pub error: Option<String>,
+}
