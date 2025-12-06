@@ -28,7 +28,11 @@ pub async fn best_move(Json(fen_input): Json<String>) -> impl IntoResponse {
         },
     };
 
-    let best_move_response = match engine.best_move() {
+    let option_best_move = tokio::task::spawn_blocking(move || {
+        engine.best_move()
+    }).await.unwrap();
+
+    let best_move_response = match option_best_move {
         None => {
             let error = ResponseError { error: String::from("No Legal Moves.") };
             return (StatusCode::BAD_REQUEST, Json(error)).into_response()

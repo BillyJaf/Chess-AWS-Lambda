@@ -110,9 +110,9 @@ impl Engine {
         }
     }
 
-    fn apply_heuristic(&self, bit_move: BitMove, bot_colour: Player) -> i32 {
-        let mut cloned_board = self.board.clone();
-        cloned_board.apply_move(bit_move);
-        heuristic(&cloned_board, bot_colour)
-    }
+    // fn apply_heuristic(&self, bit_move: BitMove, bot_colour: Player) -> i32 {
+    //     let mut cloned_board = self.board.clone();
+    //     cloned_board.apply_move(bit_move);
+    //     heuristic(&cloned_board, bot_colour)
+    // }
 }
