@@ -1,36 +1,6 @@
 use std::{cmp::Ordering, u8};
 use pleco::{BitMove, Board};
 use serde::Serialize;
-// use xxhash_rust::xxh3::xxh3_64;
-
-// struct TranspositionTable {
-//     size: usize,
-//     map: HashMap<u64, TTE>,
-// }
-
-// struct TTE {
-//     pub height: u8,
-//     pub evaluation: i32,
-// }
-
-// impl TranspositionTable {
-//     pub fn new(size: usize) -> Self {
-//         Self {
-//             size,
-//             map: HashMap::with_capacity(size),
-//         }
-//     }
-
-//     pub fn insert(&mut self, board: &Board, height: u8, evaluation: i32) {
-//         if self.map.len() >= self.size {
-//             return // FIX THIS SO THAT IT EVICTS AND THEN ADDS
-//         }
-//         self.map.insert(xxh3_64(board.fen().as_bytes()), TTE {
-//             height,
-//             evaluation,
-//         });
-//     }
-// }
 
 /// Represents an evaluation score along with its height in the game tree.
 /// Height refers to the number of levels a node is from the deepest leaf.
