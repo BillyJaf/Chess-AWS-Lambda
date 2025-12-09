@@ -1,6 +1,6 @@
 use std::{cmp::Ordering, u8};
 use pleco::{BitMove, Board};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 /// Represents an evaluation score along with its height in the game tree.
 /// Height refers to the number of levels a node is from the deepest leaf.
@@ -95,4 +95,9 @@ pub struct LegalMoves {
 pub struct ValidateFenResponse {
     pub valid: bool,
     pub error: Option<String>,
+}
+
+#[derive(Deserialize)]
+pub struct FenInput {
+    pub fen: String,
 }

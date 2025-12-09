@@ -1,5 +1,7 @@
 use lambda_http::{run, service_fn, Body, Error, Request, Response};
 
+use crate::types::FenInput;
+
 mod handlers;
 mod error;
 mod bot;
@@ -22,8 +24,18 @@ async fn handler(req: Request) -> Result<Response<Body>, Error> {
         }
 
         ("POST", "/best_move") => {
-            let body = req.body();
-            let result = handlers::best_move::best_move(body.clone()).await;
+            let fen_input: FenInput = match serde_json::from_slice(req.body()) {
+                Ok(fi) => fi,
+                Err(e) => {
+                    let error = format!("Invalid request body: {}", e);
+                    return Ok(Response::builder()
+                        .status(400)
+                        .body(serde_json::to_string(&error)?.into())
+                        .unwrap())
+                }
+            };
+
+            let result = handlers::best_move::best_move(fen_input.fen).await;
             match result {
                 Ok(best_move_response) => {
                     Ok(Response::builder()
@@ -41,8 +53,18 @@ async fn handler(req: Request) -> Result<Response<Body>, Error> {
         }
 
         ("POST", "/legal_moves") => {
-            let body = req.body();
-            let result = handlers::legal_moves::legal_moves(body.clone()).await;
+            let fen_input: FenInput = match serde_json::from_slice(req.body()) {
+                Ok(fi) => fi,
+                Err(e) => {
+                    let error = format!("Invalid request body: {}", e);
+                    return Ok(Response::builder()
+                        .status(400)
+                        .body(serde_json::to_string(&error)?.into())
+                        .unwrap())
+                }
+            };
+
+            let result = handlers::legal_moves::legal_moves(fen_input.fen).await;
             match result {
                 Ok(legal_moves) => {
                     Ok(Response::builder()
@@ -60,8 +82,18 @@ async fn handler(req: Request) -> Result<Response<Body>, Error> {
         }
 
         ("POST", "/validate_fen") => {
-            let body = req.body();
-            let result = handlers::validate_fen::validate_fen(body.clone()).await;
+            let fen_input: FenInput = match serde_json::from_slice(req.body()) {
+                Ok(fi) => fi,
+                Err(e) => {
+                    let error = format!("Invalid request body: {}", e);
+                    return Ok(Response::builder()
+                        .status(400)
+                        .body(serde_json::to_string(&error)?.into())
+                        .unwrap())
+                }
+            };
+
+            let result = handlers::validate_fen::validate_fen(fen_input.fen).await;
             match result {
                 Ok(validate_fen_response) => {
                     Ok(Response::builder()
