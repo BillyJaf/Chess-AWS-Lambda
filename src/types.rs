@@ -97,6 +97,11 @@ pub struct ValidateFenResponse {
     pub error: Option<String>,
 }
 
+#[derive(Serialize)]
+pub struct ResponseError {
+    pub error: String,
+}
+
 #[derive(Deserialize)]
 pub struct FenInput {
     pub fen: String,

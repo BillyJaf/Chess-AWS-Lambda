@@ -3,7 +3,6 @@ use lambda_http::{run, service_fn, Body, Error, Request, Response};
 use crate::types::FenInput;
 
 mod handlers;
-mod error;
 mod bot;
 mod utils;
 mod types;
@@ -46,7 +45,7 @@ async fn handler(req: Request) -> Result<Response<Body>, Error> {
                 Err(response_error) => {
                     Ok(Response::builder()
                         .status(400)
-                        .body(serde_json::to_string(&response_error.error)?.into())
+                        .body(serde_json::to_string(&response_error)?.into())
                         .unwrap())
                 }
             }
@@ -75,7 +74,7 @@ async fn handler(req: Request) -> Result<Response<Body>, Error> {
                 Err(response_error) => {
                     Ok(Response::builder()
                         .status(400)
-                        .body(serde_json::to_string(&response_error.error)?.into())
+                        .body(serde_json::to_string(&response_error)?.into())
                         .unwrap())
                 }
             }
@@ -104,7 +103,7 @@ async fn handler(req: Request) -> Result<Response<Body>, Error> {
                 Err(response_error) => {
                     Ok(Response::builder()
                         .status(400)
-                        .body(serde_json::to_string(&response_error.error)?.into())
+                        .body(serde_json::to_string(&response_error)?.into())
                         .unwrap())
                     }
             }

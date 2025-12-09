@@ -1,6 +1,6 @@
 use pleco::Board;
 
-use crate::{error::ResponseError, types::ValidateFenResponse};
+use crate::types::{ResponseError, ValidateFenResponse};
 
 pub async fn validate_fen(fen: String) -> Result<ValidateFenResponse, ResponseError> {
     match Board::from_fen(&fen) {

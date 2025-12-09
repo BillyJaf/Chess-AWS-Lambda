@@ -1,5 +1,5 @@
 use pleco::Board;
-use crate::{bot::engine::Engine, error::ResponseError, types::BestMoveResponse, utils::{game_over, get_resulting_game_states}};
+use crate::{bot::engine::Engine, types::{BestMoveResponse, ResponseError}, utils::{game_over, get_resulting_game_states}};
 
 pub async fn best_move(fen: String) -> Result<BestMoveResponse, ResponseError> {
     let board = Board::from_fen(&fen)
