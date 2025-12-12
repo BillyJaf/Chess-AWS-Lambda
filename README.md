@@ -4,7 +4,7 @@
 - Billy Jaffray
 
 ## Overview
-A REST API for a chess client-server application.   
+An AWS-Lambda API for a chess client-server application.   
 Checkout the frontend [here](https://github.com/BillyJaf/Chess-Frontend-TS)!
 
 ## Background and Motivation
