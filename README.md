@@ -4,7 +4,8 @@
 - Billy Jaffray
 
 ## Overview
-A REST API for a chess client-server application.
+A REST API for a chess client-server application.   
+Checkout the frontend [here](https://github.com/BillyJaf/Chess-Frontend-TS)!
 
 ## Background and Motivation
 I enjoy both playing chess and programming - creating a chess bot is a natural extension.
